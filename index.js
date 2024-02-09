@@ -33,9 +33,24 @@ const port = 8000
 
 app.listen(port, () => console.log(`Your app is running with ${port}`));
 
-let rooms = [];
-let roomNo = 100;
-let bookings =[];
+let rooms = [
+    // {
+    //     roomNo:100,
+    //     noSeats: 10,
+    //     amenities: "AC,LED screen",
+    //     price : 1500,
+        
+    // }
+];
+let roomNo = 101;
+let bookings =[{
+    custName: "joe3",
+    date: "06/03/2024",
+    startTime: "13:00",
+    endTime : "18:00",
+    roomNo: 100,
+    count:0
+}];
 let date_regex = /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/;
 // let time_regex = /^(0[1-9]|1\d|2[0-3])\:(0[1-9]|1\d|2\d|3\d|4\d|5\d)/;
 let time_regex = /^(0[0-9]|1\d|2[0-3])\:(00)/;
@@ -64,8 +79,10 @@ app.get("/getAllBookings", function (req, res) {
 app.post("/createRoom", function (req, res) {
     let room = {};
     room.id = uniqid();
+
     room.roomNo = roomNo;
     room.bookings = [];
+    room.status= 'Available'
     if(req.body.noSeats){room.noSeats = req.body.noSeats} else{res.status(400).json({ output: 'Please specify No of seats for Room'})};
     if(req.body.amenities){room.amenities = req.body.amenities} else{res.status(400).json({ output: 'Please specify all Amenities for Room in Array format'})};
     if(req.body.price){room.price = req.body.price} else{res.status(400).json({ output: 'Please specify price per hour for Room'})};
@@ -121,6 +138,7 @@ app.post("/createBooking", function (req, res) {
                             return true;
                         }
                     }
+                    
                 }
                 else{
                     return true;
@@ -129,27 +147,50 @@ app.post("/createBooking", function (req, res) {
 
         }
     });
+   
     if(availableRooms.length == 0){res.status(400).json({ output: 'No Available Rooms on Selected Date and Time'})}
    else{
     roomRec = availableRooms[0];
    let count =0;
    rooms.forEach(element => {
        if(element.roomNo == roomRec.roomNo){
+        rooms[count].status='booked'
         rooms[count].bookings.push({
+            bookingId:booking.id,
             custName: req.body.custName,
             startTime: req.body.startTime,
             endTime: req.body.endTime,
-            date: req.body.date
+            date: req.body.date,
+            roomNo:roomRec.roomNo,
+            status:'booked'
         })
        }
        count++;
    });
+  
    let bookingRec = req.body;
+   bookingRec.bookingId=booking.id
    bookingRec.roomNo = roomRec.roomNo;
    bookingRec.cost = parseInt(roomRec.price) * (parseInt((bookingRec.endTime).substring(0, 1)) - parseInt((bookingRec.startTime).substring(0, 1)));
-
+   bookingRec.status = 'booked'
 
    bookings.push(bookingRec);
+//    console.log(bookings)
    res.status(200).json({ output: 'Room Booking Successfully'}) 
 }
 });
+
+app.get('/roombookednumtimes/:name', (req,res)=>{
+
+            let {name} = req.params
+            let user = bookings.filter((e)=> e.custName === name)
+            
+            if(user.length===0){
+                res.status(400).json({output: 'This user doesnot exist'})
+            }else{
+                res.status(200).json({
+                    user,
+                    userbooked:`${user.length} Times`
+                })
+            }
+})
