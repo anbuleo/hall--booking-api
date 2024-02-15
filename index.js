@@ -1,33 +1,11 @@
-// import express from 'express'
 
-// const app = express()
-
-// let port = 8000
-
-
-// let hall = [ 
-//     rooms = {
-//         roomId : 0,
-//         capacity: 50,
-        
-//     }
-// ]
-
-// app.get('/',(req,res)=>{
-//     res.send(`<h1>Hello world</h1>`)
-// })
-
-// app.listen(port,()=>console.log('app islistening port 8000'))
-
-
-// require("dotenv").config();
 const express = require("express");
-// const cors = require("cors");
+
 const bodyParser = require("body-parser");
 const uniqid = require('uniqid');
 
 const app = express();
-// app.use(cors());
+
 app.use(bodyParser.json());
 const port = 8000
 
@@ -62,6 +40,9 @@ app.get("/", function (req, res) {
 
   });
 
+// end point =>(get) https://hallbookingapi-y0pj.onrender.com/getAllRooms
+//List all coustomers with booked data with [coustomer name, room name, data, start time, end time ]
+
   app.get("/getAllRooms", function (req, res) {
     res.json({
         output: rooms
@@ -69,12 +50,21 @@ app.get("/", function (req, res) {
 
 });
 
+
+
+// #end point =>(get) https://hallbookingapi-y0pj.onrender.com/getAllBookings
+// List how many times a customer has booked the room with [customer name, room name, date, start time, end time, booking id, booking date, booked status]
+
 app.get("/getAllBookings", function (req, res) {
     res.json({
         output: bookings
     });
 
 });
+
+
+// Creating a room with [number of seats available, amenties in room, price for hour]
+// #end point =>(post) https://hallbookingapi-y0pj.onrender.com/createRoom
 
 app.post("/createRoom", function (req, res) {
     let room = {};
@@ -90,6 +80,9 @@ app.post("/createRoom", function (req, res) {
     roomNo++;
     res.status(200).json({ output: 'Room Created Successfully'}) 
 });
+
+// Booking a nroom with [customer name, Date, Start time, End Time, Room id]
+// #end point =>(post) https://hallbookingapi-y0pj.onrender.com/createBooking
 
 app.post("/createBooking", function (req, res) {
     let booking = {};
@@ -179,6 +172,10 @@ app.post("/createBooking", function (req, res) {
    res.status(200).json({ output: 'Room Booking Successfully'}) 
 }
 });
+
+
+// List how many times a customer has booked the room with [customer name, room name, date, start time, end time, booking id, booking date, booked status]
+// 3end point =>(get) https://hallbookingapi-y0pj.onrender.com/roombookednumtimes/:name
 
 app.get('/roombookednumtimes/:name', (req,res)=>{
 
